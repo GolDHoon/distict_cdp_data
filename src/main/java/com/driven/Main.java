@@ -3,6 +3,7 @@ package com.driven;
 import com.driven.distirct_logic.DataConversion;
 import com.driven.googlesheet.GoogleSheet;
 import com.driven.json.CommonJson;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class Main {
-    public static void main(String[] args) throws GeneralSecurityException, IOException {
+    public static void main(String[] args) throws IOException {
         LocalDateTime now1 = LocalDateTime.now();
         System.out.println("start time : " + now1);
         GoogleSheet googleSheet = new GoogleSheet();
@@ -22,6 +23,7 @@ public class Main {
         JSONObject jsonObject = commonJson.getJsonObject();
         JSONObject sheetId = commonJson.getValue(jsonObject, "sheet_id");
         JSONObject gid = commonJson.getValue(jsonObject, "gid");
+        JSONArray mailList = commonJson.getValue(jsonObject, "toMail");
 
         List<List<Object>> visitorData = null;
         List<List<Object>> ticketSoldData = null;
@@ -44,7 +46,9 @@ public class Main {
             System.out.println("라스베가스 완료 : " + LocalDateTime.now());
         } catch (GeneralSecurityException e) {
             try {
-                dataConversion.sendNotification("sch@driven.co.kr", e);
+                mailList.forEach(mail -> {
+                    dataConversion.sendNotification(mail.toString(), e);
+                });
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
                 throw new RuntimeException(ex);
@@ -52,7 +56,9 @@ public class Main {
             throw new RuntimeException(e);
         } catch (IOException e) {
             try {
-                dataConversion.sendNotification("sch@driven.co.kr", e);
+                mailList.forEach(mail -> {
+                    dataConversion.sendNotification(mail.toString(), e);
+                });
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
                 throw new RuntimeException(ex);
@@ -80,14 +86,18 @@ public class Main {
             System.out.println("두바이 완료 : " + LocalDateTime.now());
         } catch (GeneralSecurityException e) {
             try {
-                dataConversion.sendNotification("sch@driven.co.kr", e);
+                mailList.forEach(mail -> {
+                    dataConversion.sendNotification(mail.toString(), e);
+                });
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
             throw new RuntimeException(e);
         } catch (IOException e) {
             try {
-                dataConversion.sendNotification("sch@driven.co.kr", e);
+                mailList.forEach(mail -> {
+                    dataConversion.sendNotification(mail.toString(), e);
+                });
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }

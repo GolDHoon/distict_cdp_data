@@ -230,17 +230,19 @@ public class DataConversion {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("driven_dev@driven.co.kr"));
+            message.setFrom(new InternetAddress(username));
             message.setRecipients(
                     Message.RecipientType.TO,
                     InternetAddress.parse(toEmail)
             );
-            message.setSubject("CDP데이터 자동바인딩 수행중 에러가 발생했습니다");
-            message.setText("예외 세부 정보: " + e);
+            message.setSubject("[driven 메일 알림] CDP데이터 자동바인딩 수행중 에러가 발생했습니다");
+            String text = "<이 메일은 발송용전용 메일로써 회신이 불가능합니다.>\n";
+            text = text + "예외 세부 정보: " + e + "\n";
+            message.setText(text);
 
             Transport.send(message);
 
-            System.out.println("메일 성공적으로 보냈습니다!");
+            System.out.println("mail sent success!");
 
         } catch (MessagingException ex) {
             throw new RuntimeException(ex);
