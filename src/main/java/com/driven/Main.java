@@ -23,41 +23,76 @@ public class Main {
         JSONObject sheetId = commonJson.getValue(jsonObject, "sheet_id");
         JSONObject gid = commonJson.getValue(jsonObject, "gid");
 
-        String lvSheetId = (String) commonJson.getValue(sheetId, "lv");
+        List<List<Object>> visitorData = null;
+        List<List<Object>> ticketSoldData = null;
+        try {
+            String lvSheetId = (String) commonJson.getValue(sheetId, "lv");
 
-        System.out.println("라스베가스 시작 : " + LocalDateTime.now());
-        List<List<Object>> visitorData = googleSheet.getListData(lvSheetId, "pivot!A3:D");
-        List<List<Object>> ticketSoldData = googleSheet.getListData(lvSheetId, "pivot!E3:H");
-        List<List<Object>> convertLvDataFrom = dataConversion.toLookerSheetDataForm(visitorData,ticketSoldData, "lv");
+            System.out.println("라스베가스 시작 : " + LocalDateTime.now());
+            visitorData = googleSheet.getListData(lvSheetId, "pivot!A3:D");
+            ticketSoldData = googleSheet.getListData(lvSheetId, "pivot!E3:H");
+            List<List<Object>> convertLvDataFrom = dataConversion.toLookerSheetDataForm(visitorData,ticketSoldData, "lv");
 
-        googleSheet.updateSheetData(lvSheetId, "looker!A2:C", convertLvDataFrom);
-
-
-        int lvGid = (int) commonJson.getValue(gid, "lv");
-
-        googleSheet.setFormatColumn(lvSheetId, lvGid, 1, "DATE", "yyyy-mm-dd");
-        googleSheet.setFormatColumn(lvSheetId, lvGid, 2, "NUMBER", "0");
-        googleSheet.setFormatColumn(lvSheetId, lvGid, 3, "NUMBER", "0");
-        System.out.println("라스베가스 완료 : " + LocalDateTime.now());
-
-        String dbSheetId = (String) commonJson.getValue(sheetId, "db");
+            googleSheet.updateSheetData(lvSheetId, "looker!A2:C", convertLvDataFrom);
 
 
-        System.out.println("두바이 시작 : " + LocalDateTime.now());
-        visitorData = googleSheet.getListData(dbSheetId, "pivot!A3:E");
-        ticketSoldData = googleSheet.getListData(dbSheetId, "pivot!F3:J");
-        List<List<Object>> convertDbDataFrom = dataConversion.toLookerSheetDataForm(visitorData,ticketSoldData, "db");
+            int lvGid = (int) commonJson.getValue(gid, "lv");
 
-        int dbGid = (int) commonJson.getValue(gid, "db");
+            googleSheet.setFormatColumn(lvSheetId, lvGid, 1, "DATE", "yyyy-mm-dd");
+            googleSheet.setFormatColumn(lvSheetId, lvGid, 2, "NUMBER", "0");
+            googleSheet.setFormatColumn(lvSheetId, lvGid, 3, "NUMBER", "0");
+            System.out.println("라스베가스 완료 : " + LocalDateTime.now());
+        } catch (GeneralSecurityException e) {
+            try {
+                dataConversion.sendNotification("sch@driven.co.kr", e);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            try {
+                dataConversion.sendNotification("sch@driven.co.kr", e);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
 
-        convertDbDataFrom.remove(0);
-        googleSheet.updateSheetData(dbSheetId, "looker!A2:D", convertDbDataFrom);
+        try {
+            String dbSheetId = (String) commonJson.getValue(sheetId, "db");
 
-        googleSheet.setFormatColumn(dbSheetId, dbGid, 1, "DATE", "yyyy-mm-dd");
-        googleSheet.setFormatColumn(dbSheetId, dbGid, 2, "NUMBER", "0");
-        googleSheet.setFormatColumn(dbSheetId, dbGid, 3, "NUMBER", "0");
-        googleSheet.setFormatColumn(dbSheetId, dbGid, 4, "NUMBER", "0");
-        System.out.println("두바이 완료 : " + LocalDateTime.now());
+            System.out.println("두바이 시작 : " + LocalDateTime.now());
+            visitorData = googleSheet.getListData(dbSheetId, "pivot!A3:E");
+            ticketSoldData = googleSheet.getListData(dbSheetId, "pivot!F3:J");
+            List<List<Object>> convertDbDataFrom = dataConversion.toLookerSheetDataForm(visitorData,ticketSoldData, "db");
+
+            int dbGid = (int) commonJson.getValue(gid, "db");
+
+            convertDbDataFrom.remove(0);
+            googleSheet.updateSheetData(dbSheetId, "looker!A2:D", convertDbDataFrom);
+
+            googleSheet.setFormatColumn(dbSheetId, dbGid, 1, "DATE", "yyyy-mm-dd");
+            googleSheet.setFormatColumn(dbSheetId, dbGid, 2, "NUMBER", "0");
+            googleSheet.setFormatColumn(dbSheetId, dbGid, 3, "NUMBER", "0");
+            googleSheet.setFormatColumn(dbSheetId, dbGid, 4, "NUMBER", "0");
+            System.out.println("두바이 완료 : " + LocalDateTime.now());
+        } catch (GeneralSecurityException e) {
+            try {
+                dataConversion.sendNotification("sch@driven.co.kr", e);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            try {
+                dataConversion.sendNotification("sch@driven.co.kr", e);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            throw new RuntimeException(e);
+        }
 
         LocalDateTime now2 = LocalDateTime.now();
         System.out.println("end time : " + now2);

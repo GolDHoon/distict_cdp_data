@@ -1,8 +1,12 @@
 package com.driven.distirct_logic;
 
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class DataConversion {
     public List<List<Object>> toLookerSheetDataForm(List<List<Object>> visitor, List<List<Object>> ticketSold, String reportType){
@@ -202,5 +206,44 @@ public class DataConversion {
                 break;
         }
         return result;
+    }
+
+    public void sendNotification(String toEmail, Throwable e) {
+        final String username = "driven_dev@driven.co.kr";
+        final String password = "emflqms1!";
+
+        Properties prop = new Properties();
+        prop.put("mail.smtp.auth", true);
+        prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        prop.put("mail.smtp.host", "smtp.mailplug.co.kr");
+        prop.put("mail.smtp.port", "465");
+        prop.put("mail.debug", "true");
+
+        Session session = Session.getInstance(prop,
+                new Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("driven_dev@driven.co.kr"));
+            message.setRecipients(
+                    Message.RecipientType.TO,
+                    InternetAddress.parse(toEmail)
+            );
+            message.setSubject("CDP데이터 자동바인딩 수행중 에러가 발생했습니다");
+            message.setText("예외 세부 정보: " + e);
+
+            Transport.send(message);
+
+            System.out.println("메일 성공적으로 보냈습니다!");
+
+        } catch (MessagingException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
