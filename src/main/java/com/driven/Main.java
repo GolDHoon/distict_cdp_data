@@ -51,9 +51,7 @@ public class Main {
                 });
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
-                throw new RuntimeException(ex);
             }
-            throw new RuntimeException(e);
         } catch (IOException e) {
             try {
                 mailList.forEach(mail -> {
@@ -61,9 +59,7 @@ public class Main {
                 });
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
-                throw new RuntimeException(ex);
             }
-            throw new RuntimeException(e);
         }
 
         try {
@@ -90,18 +86,14 @@ public class Main {
                     dataConversion.sendNotification(mail.toString(), e);
                 });
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
             }
-            throw new RuntimeException(e);
         } catch (IOException e) {
             try {
                 mailList.forEach(mail -> {
                     dataConversion.sendNotification(mail.toString(), e);
                 });
             } catch (Exception ex) {
-                throw new RuntimeException(ex);
             }
-            throw new RuntimeException(e);
         }
 
         LocalDateTime now2 = LocalDateTime.now();
